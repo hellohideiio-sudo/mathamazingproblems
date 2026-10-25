@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orbit Arcade — Play anywhere</title>
+<style>
+  :root{color-scheme:dark;--bg:#070912;--panel:#121829;--line:#2c3551;--text:#f5f7ff;--muted:#a3aecb;--cyan:#52e7e1;--pink:#ff78b5;--purple:#ab90ff;--yellow:#ffdf79}
+  *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 20% 5%,#25234e 0,transparent 42%),radial-gradient(ellipse at 95% 18%,#103846 0,transparent 40%),var(--bg)}
+  button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}.wrap{max-width:1040px;padding:0 24px;margin:0 auto}
+  header{border-bottom:1px solid #ffffff18;background:#080c16bb;backdrop-filter:blur(14px)}.nav{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;gap:11px;align-items:center;font-weight:900;letter-spacing:.04em;font-size:1.12rem}.brandIcon{display:grid;place-items:center;width:39px;height:39px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#09121d;font-size:23px}
+  .navright{font-size:.82rem;color:var(--muted);border:1px solid var(--line);padding:8px 12px;border-radius:100px}main{padding-top:48px;padding-bottom:65px}
+  .eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.19em;text-transform:uppercase;color:var(--cyan)}h1{font-size:clamp(2.1rem,6vw,4rem);letter-spacing:-.05em;margin:11px 0 13px;line-height:1.06}
+  .intro{max-width:560px;color:var(--muted);font-size:1.03rem;line-height:1.6;margin:0 0 30px}.bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:36px 0 18px}
+  h2{font-size:1.3rem;letter-spacing:-.02em;margin:0}.count{color:var(--muted);font-size:.85rem}.games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px}
+  .game{background:linear-gradient(180deg,#192139,#101523);border:1px solid var(--line);border-radius:19px;overflow:hidden;text-align:left;color:inherit;padding:0;transition:transform .16s,border-color .16s,box-shadow .16s;min-width:0}
+  .game:hover{transform:translateY(-4px);border-color:#8a91be;box-shadow:0 12px 36px #0006}.art{height:177px;display:grid;place-items:center;position:relative;overflow:hidden}
+  .art:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0b102733,transparent)}.art span{font-size:68px;filter:drop-shadow(0 8px 14px #0008);z-index:1}
+  .snake{background:radial-gradient(circle at 55% 38%,#3f866e,#132d37 70%)}.dodge{background:radial-gradient(circle at 55% 38%,#66449b,#21173f 70%)}.tac{background:radial-gradient(circle at 50% 38%,#85527f,#371d44 70%)}
+  .gbody{padding:19px 19px 20px}.gtitle{font-weight:850;font-size:1.16rem;margin:0 0 6px}.desc{color:var(--muted);font-size:.86rem;line-height:1.45;min-height:39px;margin:0 0 15px}
+  .pill{display:inline-flex;align-items:center;gap:6px;color:var(--cyan);font-size:.76rem;font-weight:800}.pill:after{content:"→";font-size:1rem}
+  .playView{display:none}.playView.active{display:block}.home.hidden{display:none}.back{padding:10px 16px;border-radius:11px;border:1px solid var(--line);background:#171f34;color:#dfe6ff;font-weight:750}
+  .gameTop{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:22px 0 20px}.gameTop h2{font-size:1.7rem}
+  .gameIntro{color:var(--muted);margin:6px 0 0;font-size:.93rem}.stage{display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px;background:#0b1020;border:1px solid var(--line);border-radius:20px}
+  canvas{display:block;width:min(100%,420px);height:auto;aspect-ratio:1;border-radius:13px;border:1px solid #34415e;background:#0b1320;touch-action:none}
+  .statline{width:min(100%,420px);display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem;font-weight:700}.statline span{color:var(--muted)}
+  .status{min-height:24px;text-align:center;color:#e7edff;font-size:.94rem;font-weight:650}.actions{display:flex;justify-content:center;flex-wrap:wrap;gap:9px}
+  .action{padding:10px 17px;border-radius:10px;border:1px solid #415070;background:#1b2945;color:white;font-weight:750}.action.primary{background:var(--cyan);color:#071520;border-color:var(--cyan)}
+  .hint{color:var(--muted);font-size:.83rem;text-align:center;margin:0;line-height:1.45}.pad{display:grid;grid-template-columns:repeat(3,51px);gap:7px;justify-content:center;user-select:none}
+  .pad button{height:46px;border-radius:11px;border:1px solid #425575;background:#18253c;color:white;font-size:1.2rem;font-weight:800;touch-action:none}.pad button:active{background:#32506d}
+  .pad .up{grid-column:2;grid-row:1}.pad .left{grid-column:1;grid-row:2}.pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}
+  #tttArea{display:none;width:min(100%,420px)}.tttBoard{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:340px;margin:14px auto 21px}.tttBoard button{aspect-ratio:1;border:1px solid #52617f;border-radius:15px;background:#182440;color:var(--cyan);font-size:clamp(2.8rem,10vw,4.5rem);font-weight:900;line-height:1}.tttBoard button.o{color:var(--pink)}.tttBoard button:disabled{cursor:default;opacity:1}
+  footer{color:#7c87a4;font-size:.78rem;text-align:center;padding:20px 0 32px;border-top:1px solid #ffffff12}
+  @media(max-width:720px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}.art{height:150px}.navright{display:none}}
+  @media(max-width:490px){.games{grid-template-columns:1fr}.art{height:160px}main{padding-top:34px}.stage{padding:12px}.wrap{padding:0 16px}}
+</style>
+</head>
+<body>
+<header><div class="nav wrap"><div class="brand"><span class="brandIcon">✦</span>ORBIT ARCADE</div><div class="navright">3 games · No downloads · Free</div></div></header>
+<main class="wrap">
+<section id="home" class="home">
+  <div class="eyebrow">Your mini game universe</div>
+  <h1>Take a break.<br />Play something fun.</h1>
+  <p class="intro">Quick browser games built right into this site. Choose a game below and start playing instantly.</p>
+  <div class="bar"><h2>Pick a game</h2><span class="count">3 games available</span></div>
+  <div class="games">
+    <button type="button" class="game" data-game="snake"><div class="art snake"><span>🐍</span></div><div class="gbody"><div class="gtitle">Neon Snake</div><p class="desc">Eat the glowing food. Don't crash into yourself!</p><div class="pill">Play now</div></div></button>
+    <button type="button" class="game" data-game="dodge"><div class="art dodge"><span>🚀</span></div><div class="gbody"><div class="gtitle">Meteor Dodge</div><p class="desc">Move your ship and dodge the falling meteors.</p><div class="pill">Play now</div></div></button>
+    <button type="button" class="game" data-game="tac"><div class="art tac"><span>⭕</span></div><div class="gbody"><div class="gtitle">Tic Tac Toe</div><p class="desc">Can you outsmart the computer in a classic match?</p><div class="pill">Play now</div></div></button>
+  </div>
+</section>
+<section id="playView" class="playView" aria-label="Game player">
+  <button type="button" class="back" id="backButton">← All games</button>
+  <div class="gameTop"><div><h2 id="activeTitle">Game</h2><p class="gameIntro" id="gameIntro"></p></div></div>
+  <div class="stage">
+    <div class="statline"><div>Score: <b id="score">0</b></div><div><span>Best: </span><b id="best">0</b></div></div>
+    <canvas id="board" width="400" height="400" aria-label="Game canvas"></canvas>
+    <div id="tttArea"><div class="tttBoard" id="tttBoard"></div></div>
+    <div class="status" id="status" aria-live="polite"></div>
+    <div class="actions"><button type="button" id="startButton" class="action primary">Start game</button><button type="button" id="pauseButton" class="action">Pause</button></div>
+    <div id="pad" class="pad" aria-label="Direction controls">
+      <button type="button" class="up" data-dir="up" aria-label="Up">↑</button><button type="button" class="left" data-dir="left" aria-label="Left">←</button><button type="button" class="down" data-dir="down" aria-label="Down">↓</button><button type="button" class="right" data-dir="right" aria-label="Right">→</button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </div>
+</section>
+</main>
+<footer>Orbit Arcade · Made with HTML, CSS & JavaScript · No accounts needed to play</footer>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d');
+const titles={snake:'Neon Snake',dodge:'Meteor Dodge',tac:'Tic Tac Toe'};
+const subtitles={snake:'Grow longer and beat your high score.',dodge:'Survive as long as you can.',tac:'You are X. The computer is O.'};
+const hints={snake:'Arrow keys or WASD to steer. Use the buttons on touchscreens.',dodge:'Hold arrow keys / WASD to move, or hold the onscreen arrows.',tac:'Click an empty square to place your X.'};
+let game=null,playing=false,paused=false,over=false,raf=0,interval=0,score=0,high=0,keys=new Set();
+let snake=[],dir={x:1,y:0},nextDir={x:1,y:0},food={x:13,y:10};
+let ship={x:200,y:340},rocks=[],spawnWait=0,elapsed=0,lastFrame=0;
+let cells=Array(9).fill(''),turnFinished=false;
+const rand=n=>Math.floor(Math.random()*n);
+function showStatus(msg){$('status').textContent=msg}
+function safeHigh(type){try{return Number(localStorage.getItem('orbit_'+type))||0}catch{return 0}}
+function saveHigh(){if(score>high){high=score;$('best').textContent=high;try{localStorage.setItem('orbit_'+game,high)}catch{}}}
+function updateScore(n){score=n;$('score').textContent=n;saveHigh()}
+function cancel(){playing=false;paused=false;over=false;clearInterval(interval);cancelAnimationFrame(raf);keys.clear()}
+function openGame(name){cancel();game=name;history.replaceState(null,'','#'+name);$('home').classList.add('hidden');$('playView').classList.add('active');$('activeTitle').textContent=titles[name];$('gameIntro').textContent=subtitles[name];$('hint').textContent=hints[name];high=safeHigh(name);$('best').textContent=high;updateScore(0);$('board').style.display=name==='tac'?'none':'block';$('tttArea').style.display=name==='tac'?'block':'none';$('pad').style.display=name==='tac'?'none':'grid';$('pauseButton').style.display=name==='tac'?'none':'inline-block';$('startButton').textContent=name==='tac'?'New match':'Start game';if(name==='snake'){resetSnake();drawSnake()}else if(name==='dodge'){resetDodge();drawDodge()}else resetTac();showStatus('Ready?');window.scrollTo({top:0,behavior:'instant'})}
+function closeGame(){cancel();game=null;history.replaceState(null,'',location.pathname+location.search);$('playView').classList.remove('active');$('home').classList.remove('hidden')}
+function start(){if(!game)return;if(game==='snake'){clearInterval(interval);resetSnake();playing=true;paused=false;over=false;showStatus('');interval=setInterval(stepSnake,125)}else if(game==='dodge'){cancelAnimationFrame(raf);resetDodge();playing=true;paused=false;over=false;lastFrame=performance.now();showStatus('');raf=requestAnimationFrame(stepDodge)}else{resetTac();playing=true;showStatus('Your turn!')}$('startButton').textContent=game==='tac'?'New match':'Restart';$('pauseButton').textContent='Pause'}
+function togglePause(){if(!playing||over||game==='tac')return;paused=!paused;keys.clear();$('pauseButton').textContent=paused?'Resume':'Pause';showStatus(paused?'Paused':'');if(game==='dodge'&&!paused){lastFrame=performance.now();raf=requestAnimationFrame(stepDodge)} }
+function end(msg){playing=false;over=true;showStatus(msg);$('startButton').textContent='Play again';saveHigh()}
+function gridBG(){ctx.fillStyle='#0a1423';ctx.fillRect(0,0,400,400);ctx.strokeStyle='#26344b55';ctx.lineWidth=1;for(let i=0;i<=400;i+=20){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,400);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(400,i);ctx.stroke()}}
+function resetSnake(){snake=[{x:8,y:10},{x:7,y:10},{x:6,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};updateScore(0);newFood()}
+function newFood(){const empty=[];for(let y=0;y<20;y++)for(let x=0;x<20;x++)if(!snake.some(p=>p.x===x&&p.y===y))empty.push({x,y});if(!empty.length){end('You filled the board!');return}food=empty[rand(empty.length)]}
+function drawSnake(){gridBG();ctx.fillStyle='#ff7ba9';ctx.shadowColor='#ff7ba9';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(food.x*20+10,food.y*20+10,7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#b8fff0':'#45dec2';ctx.fillRect(p.x*20+2,p.y*20+2,16,16)})}
+function stepSnake(){if(!playing||paused)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};const eaten=head.x===food.x&&head.y===food.y;const check=eaten?snake:snake.slice(0,-1);if(head.x<0||head.x>=20||head.y<0||head.y>=20||check.some(p=>p.x===head.x&&p.y===head.y)){end('Game over! You scored '+score+'.');return}snake.unshift(head);if(eaten){updateScore(score+10);newFood()}else snake.pop();drawSnake()}
+function setDirection(d){const v={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[d];if(!v)return;if(game==='snake'){if(v.x!==-dir.x||v.y!==-dir.y)nextDir=v}else if(game==='dodge'){keys.add(d)}}
+function resetDodge(){ship={x:200,y:355};rocks=[];elapsed=0;spawnWait=0;updateScore(0);keys.clear()}
+function drawDodge(){gridBG();ctx.fillStyle='#ffe08c';rocks.forEach(r=>{ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ff9679';ctx.lineWidth=3;ctx.stroke()});ctx.save();ctx.translate(ship.x,ship.y);ctx.fillStyle='#76f9ee';ctx.shadowColor='#76f9ee';ctx.shadowBlur=15;ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(-13,12);ctx.lineTo(0,6);ctx.lineTo(13,12);ctx.closePath();ctx.fill();ctx.restore()}
+function stepDodge(now){if(!playing||paused)return;const dt=Math.min((now-lastFrame)/1000,.045);lastFrame=now;elapsed+=dt;const speed=235*dt;let dx=Number(keys.has('right'))-Number(keys.has('left'));let dy=Number(keys.has('down'))-Number(keys.has('up'));const scale=dx&&dy?Math.SQRT1_2:1;ship.x=Math.max(15,Math.min(385,ship.x+dx*speed*scale));ship.y=Math.max(15,Math.min(385,ship.y+dy*speed*scale));spawnWait-=dt;if(spawnWait<=0){const r=8+rand(11);rocks.push({x:r+rand(400-r*2),y:-r,r,speed:115+elapsed*3+rand(70)});spawnWait=Math.max(.25,.85-elapsed*.01)}for(const rock of rocks){rock.y+=rock.speed*dt;if(Math.hypot(rock.x-ship.x,rock.y-ship.y)<rock.r+10){drawDodge();end('Meteor hit! You survived '+score+' seconds.');return}}rocks=rocks.filter(r=>r.y<430);updateScore(Math.floor(elapsed));drawDodge();raf=requestAnimationFrame(stepDodge)}
+function resetTac(){cells=Array(9).fill('');turnFinished=false;updateScore(0);const board=$('tttBoard');board.innerHTML='';for(let i=0;i<9;i++){const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Square '+(i+1));b.addEventListener('click',()=>place(i));board.appendChild(b)}showStatus('Your turn!')}
+const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function winner(c){for(const [a,b,d]of wins)if(c[a]&&c[a]===c[b]&&c[b]===c[d])return c[a];return c.every(Boolean)?'draw':null}
+function renderTac(){[...$('tttBoard').children].forEach((b,i)=>{b.textContent=cells[i];b.className=cells[i]==='O'?'o':'';b.disabled=!!cells[i]||turnFinished})}
+function findMove(mark){for(let i=0;i<9;i++)if(!cells[i]){const copy=cells.slice();copy[i]=mark;if(winner(copy)===mark)return i}return -1}
+function place(i){if(turnFinished||cells[i]||!game||game!=='tac')return;cells[i]='X';let result=winner(cells);if(result){finishTac(result);return}let move=findMove('O');if(move<0)move=findMove('X');if(move<0&&cells[4]==='')move=4;if(move<0){const open=cells.map((v,j)=>v?-1:j).filter(j=>j!==-1);move=open[rand(open.length)]}cells[move]='O';result=winner(cells);if(result)finishTac(result);else{renderTac();showStatus('Your turn!')}}
+function finishTac(result){turnFinished=true;if(result==='X'){updateScore(1);showStatus('You win! Nice moves.')}else if(result==='O')showStatus('Computer wins. Try again!');else showStatus("It's a draw!");renderTac()}
+for(const card of document.querySelectorAll('[data-game]'))card.addEventListener('click',()=>openGame(card.dataset.game));
+$('backButton').addEventListener('click',closeGame);$('startButton').addEventListener('click',start);$('pauseButton').addEventListener('click',togglePause);
+const directionOf={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
+window.addEventListener('keydown',e=>{if(!game)return;if(e.code==='Escape'){closeGame();return}if(e.code==='Space'){e.preventDefault();togglePause();return}const d=directionOf[e.code];if(d){e.preventDefault();if(e.repeat&&game==='snake')return;setDirection(d)}});
+window.addEventListener('keyup',e=>{const d=directionOf[e.code];if(d)keys.delete(d)});
+window.addEventListener('blur',()=>{keys.clear();if(playing&&!paused&&game!=='tac')togglePause()});
+for(const button of document.querySelectorAll('#pad button')){const d=button.dataset.dir;button.addEventListener('pointerdown',e=>{e.preventDefault();setDirection(d);try{button.setPointerCapture(e.pointerId)}catch{}});button.addEventListener('pointerup',()=>keys.delete(d));button.addEventListener('pointercancel',()=>keys.delete(d));button.addEventListener('lostpointercapture',()=>keys.delete(d));button.addEventListener('click',()=>{if(game==='snake')setDirection(d)})}
+if(['snake','dodge','tac'].includes(location.hash.slice(1)))openGame(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>
